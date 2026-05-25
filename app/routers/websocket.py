@@ -2,8 +2,8 @@ import json
 
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
-from app import storage
-from app.schemas.task import TaskResponse, WebSocketMessage
+from app.schemas import TaskResponse, WebSocketMessage
+from app.storage import task_storage
 
 router = APIRouter(tags=["websocket"])
 
@@ -74,7 +74,7 @@ async def tasks_websocket(websocket: WebSocket) -> None:
                 continue
 
             if command.get("action") == "list":
-                tasks = storage.list_tasks(user_id)
+                tasks = task_storage.list_tasks(user_id)
                 await websocket.send_json(
                     {
                         "type": "task_list",

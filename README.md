@@ -1,6 +1,4 @@
-# Task Manager API
-
-REST API для управления задачами на FastAPI с WebSocket, интеграционными тестами и Docker.
+# 5kr TRSP.
 
 ## Локальный запуск
 
@@ -61,13 +59,6 @@ curl.exe http://localhost:8000/health
 curl.exe http://localhost:8000/tasks -H "X-User-Id: 10"
 ```
 
-или без предупреждений:
-
-```powershell
-Invoke-RestMethod http://localhost:8000/health
-Invoke-RestMethod http://localhost:8000/tasks -Headers @{"X-User-Id"="10"}
-```
-
 Ожидаемый ответ для задач: `[]`
 
 Проверка состояния:
@@ -93,8 +84,28 @@ curl http://localhost:8000/health
 | PATCH | `/tasks/{id}/status` | Изменить статус |
 | DELETE | `/tasks/{id}` | Удалить задачу (204) |
 | WS | `/ws/tasks` | WebSocket (заголовок `X-User-Id`) |
+| WS | `/ws/rooms/{room_id}?username=alice` | Чат в комнате |
+| GET | `/rooms/{room_id}/users` | Активные пользователи комнаты |
 
-Авторизация: заголовок `X-User-Id` (например, `10`).
+Авторизация задач: заголовок `X-User-Id` (например, `10`).
+
+### WebSocket-чат
+
+WebSocket (`ws://`) — постоянное двустороннее соединение с сервером (в отличие от HTTP, где каждый запрос открывается и закрывается).
+
+Подключение: `ws://localhost:8000/ws/rooms/python?username=alice`
+
+Проверка (сервер должен быть запущен):
+
+```powershell
+python -m pytest tests/test_websocket.py -v
+```
+
+Список пользователей в комнате (HTTP):
+
+```powershell
+Invoke-RestMethod http://localhost:8000/rooms/python/users
+```
 
 ## Структура проекта
 
@@ -105,6 +116,7 @@ task-api/
 │   ├── config.py
 │   ├── dependencies.py
 │   ├── storage.py
+│   ├── room_manager.py
 │   ├── schemas/
 │   └── routers/
 ├── tests/

@@ -1,8 +1,9 @@
 import pytest
 from fastapi.testclient import TestClient
 
-from app import storage
+from app.storage import reset_storage
 from app.main import app
+from app.room_manager import room_manager
 from app.routers import websocket as ws_router
 
 
@@ -13,5 +14,6 @@ def client() -> TestClient:
 
 @pytest.fixture(autouse=True)
 def clear_storage() -> None:
-    storage.reset_storage()
+    reset_storage()
     ws_router.reset_connections()
+    room_manager.reset()

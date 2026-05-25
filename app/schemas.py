@@ -29,6 +29,26 @@ class TaskResponse(BaseModel):
     owner_id: int
 
 
+class CurrentUser(BaseModel):
+    id: int
+    role: str
+
+
+class UserResponse(BaseModel):
+    id: int
+    role: str
+
+
+class AdminStatsResponse(BaseModel):
+    total_tasks: int
+    by_status: dict[str, int]
+
+
+class RoomUsersResponse(BaseModel):
+    room_id: str
+    users: list[str]
+
+
 class WebSocketMessage(BaseModel):
     type: str
     task: TaskResponse | None = None

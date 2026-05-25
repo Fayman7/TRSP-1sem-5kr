@@ -1,34 +1,41 @@
-from fastapi import Header, HTTPException, Query, status
+from fastapi import Depends, Header, HTTPException, Query, status
+
+from app.schemas import CurrentUser
+from app.storage import TaskStorage, task_storage
 
 
-def get_current_user_id(x_user_id: str | None = Header(default=None, alias="X-User-Id")) -> int:
+def get_current_user(
+    x_user_id: str | None = Header(default=None, alias="X-User-Id"),
+    x_user_role: str | None = Header(default="user", alias="X-User-Role"),
+) -> CurrentUser:
     if x_user_id is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Missing X-User-Id header",
         )
     try:
-        return int(x_user_id)
+        user_id = int(x_user_id)
     except ValueError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid X-User-Id header",
         )
+    return CurrentUser(id=user_id, role=x_user_role or "user")
 
 
-def parse_ws_user_id(user_id: str | None = Query(default=None, alias="user_id")) -> int:
-    if user_id is None:
+def require_admin(
+    current_user: CurrentUser = Depends(get_current_user),
+) -> CurrentUser:
+    if current_user.role != "admin":
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Missing user_id query parameter",
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin access required",
         )
-    try:
-        return int(user_id)
-    except ValueError:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid user_id query parameter",
-        )
+    return current_user
+
+
+def get_storage() -> TaskStorage:
+    return task_storage
 
 
 def validate_task_status_filter(

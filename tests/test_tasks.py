@@ -1,7 +1,7 @@
 from fastapi.testclient import TestClient
 
-USER_10 = {"X-User-Id": "10"}
-USER_20 = {"X-User-Id": "20"}
+USER_10 = {"X-User-Id": "10", "X-User-Role": "user"}
+USER_20 = {"X-User-Id": "20", "X-User-Role": "user"}
 
 
 def _create_task(
